@@ -1,0 +1,1827 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>El Gran Pajonal - Restaurante Peruano</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #E63946;
+            --secondary-color: #457B9D;
+            --accent-color: #F1FAEE;
+            --dark-color: #1D3557;
+            --light-color: #A8DADC;
+            --sidebar-width: 250px;
+            --sidebar-collapsed-width: 70px;
+            --transition-speed: 0.3s;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            overflow-x: hidden;
+            color: #333;
+            background-color: #f9f9f9;
+        }
+        
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: var(--sidebar-width);
+            background-color: var(--dark-color);
+            transition: width var(--transition-speed);
+            z-index: 1000;
+            overflow-x: hidden;
+        }
+        
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+        
+        .content-area {
+            margin-left: var(--sidebar-width);
+            transition: margin-left var(--transition-speed);
+        }
+        
+        .content-area.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+        
+        .menu-item-text {
+            white-space: nowrap;
+            opacity: 1;
+            transition: opacity var(--transition-speed);
+        }
+        
+        .collapsed .menu-item-text {
+            opacity: 0;
+            overflow: hidden;
+            width: 0;
+        }
+        
+        .sidebar-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+        }
+        
+        .menu-item {
+            padding: 15px 20px;
+            color: white;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .menu-item:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .menu-item.active {
+            background-color: var(--primary-color);
+        }
+        
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+            min-width: 25px;
+            text-align: center;
+        }
+        
+        .collapsed .menu-item i {
+            margin-right: 0;
+        }
+        
+        .hero-section {
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80');
+            background-size: cover;
+            background-position: center;
+            color: white;
+            padding: 120px 0;
+            position: relative;
+        }
+        
+        .promo-card {
+            transition: transform 0.3s;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        
+        .promo-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .category-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        
+        .product-img {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary:hover {
+            background-color: #c62836;
+            transform: translateY(-2px);
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            padding: 8px 18px;
+            border-radius: 5px;
+            border: 1px solid var(--primary-color);
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .cart-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        
+        .section-title {
+            position: relative;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+        }
+        
+        .section-title:after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 2000;
+            overflow-y: auto;
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            position: relative;
+            animation: modalFade 0.3s ease;
+        }
+        
+        @keyframes modalFade {
+            from {opacity: 0; transform: translateY(-20px);}
+            to {opacity: 1; transform: translateY(0);}
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #999;
+        }
+        
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .payment-option {
+            border: 2px solid #eee;
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .payment-option.selected {
+            border-color: var(--primary-color);
+            background-color: #fff5f5;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+        
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .receipt {
+            background-color: white;
+            border: 1px solid #eee;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .receipt-header {
+            border-bottom: 1px dashed #ddd;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .receipt-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .receipt-footer {
+            border-top: 1px dashed #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .user-info img {
+            margin-right: 10px;
+        }
+        
+        .collapsed .user-info span {
+            display: none;
+        }
+
+        .info-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="sidebar-toggle" id="toggleSidebar">
+            <i class="fas fa-bars"></i>
+        </button>
+        
+        <!-- User Info Section (if logged in) -->
+        <div class="user-info">
+            <img src="https://randomuser.me/api/portraits/men/1.jpg" alt="User Avatar" class="avatar">
+            <span class="menu-item-text ml-2 text-white">Invitado</span>
+        </div>
+        
+        <!-- Menu Items -->
+        <div class="menu-item active" data-section="home">
+            <i class="fas fa-home"></i>
+            <span class="menu-item-text">Inicio</span>
+        </div>
+        <div class="menu-item" data-section="menu">
+            <i class="fas fa-utensils"></i>
+            <span class="menu-item-text">Menú</span>
+        </div>
+        <div class="menu-item" data-section="promotions">
+            <i class="fas fa-percentage"></i>
+            <span class="menu-item-text">Promociones</span>
+        </div>
+        <div class="menu-item" data-section="about">
+            <i class="fas fa-info-circle"></i>
+            <span class="menu-item-text">Nosotros</span>
+        </div>
+        <div class="menu-item" data-section="location">
+            <i class="fas fa-map-marker-alt"></i>
+            <span class="menu-item-text">Ubícanos</span>
+        </div>
+        <div class="menu-item" data-section="reviews">
+            <i class="fas fa-star"></i>
+            <span class="menu-item-text">Comentarios</span>
+        </div>
+        <div class="menu-item" id="loginBtn">
+            <i class="fas fa-sign-in-alt"></i>
+            <span class="menu-item-text">Iniciar Sesión</span>
+        </div>
+        <div class="menu-item" id="registerBtn">
+            <i class="fas fa-user-plus"></i>
+            <span class="menu-item-text">Registrarse</span>
+        </div>
+    </div>
+    
+    <!-- Main Content Area -->
+    <div class="content-area" id="contentArea">
+        <!-- Header with Cart -->
+        <header class="bg-white shadow-md p-4 flex justify-between items-center">
+            <h1 class="text-2xl font-bold text-primary">El Gran Pajonal</h1>
+            <div class="relative cursor-pointer" id="cartIcon">
+                <i class="fas fa-shopping-cart text-2xl"></i>
+                <div class="cart-badge" id="cartCount">0</div>
+            </div>
+        </header>
+        
+        <!-- Home Section -->
+        <section id="home" class="tab-content active">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="container mx-auto px-4 text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold mb-4">Auténtica Cocina Peruana</h1>
+                    <p class="text-xl md:text-2xl mb-8">Sabores tradicionales con un toque moderno</p>
+                    <button class="btn-primary text-lg" onclick="scrollToSection('menu')">Ver Menú</button>
+                </div>
+            </div>
+            
+            <!-- Promotions Preview -->
+            <div class="container mx-auto px-4 py-16">
+                <h2 class="text-3xl font-bold mb-8 section-title">Promociones Especiales</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 1" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold mb-2">Martes de Ceviches</h3>
+                            <p class="text-gray-700 mb-4">2x1 en todos nuestros ceviches frescos de la casa.</p>
+                            <button class="btn-outline" onclick="switchSection('promotions')">Ver Más</button>
+                        </div>
+                    </div>
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 2" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold mb-2">Happy Hour de Pisco</h3>
+                            <p class="text-gray-700 mb-4">30% de descuento en cócteles de Pisco de 5pm a 7pm.</p>
+                            <button class="btn-outline" onclick="switchSection('promotions')">Ver Más</button>
+                        </div>
+                    </div>
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 3" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold mb-2">Combo Familiar</h3>
+                            <p class="text-gray-700 mb-4">Lomo saltado para 4 personas + bebidas y postre.</p>
+                            <button class="btn-outline" onclick="switchSection('promotions')">Ver Más</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Featured Dishes -->
+            <div class="bg-gray-100 py-16">
+                <div class="container mx-auto px-4">
+                    <h2 class="text-3xl font-bold mb-8 section-title">Platos Destacados</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="product-card">
+                            <img src="https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Ceviche Clásico" class="product-img">
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold mb-2">Ceviche Clásico</h3>
+                                <p class="text-gray-700 mb-4">Pescado fresco marinado en limón con ajíes peruanos.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg text-primary">S/ 35.00</span>
+                                    <button class="btn-primary add-to-cart" data-id="1" data-name="Ceviche Clásico" data-price="35" data-img="https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                        <i class="fas fa-plus mr-2"></i>Añadir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Lomo Saltado" class="product-img">
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold mb-2">Lomo Saltado</h3>
+                                <p class="text-gray-700 mb-4">Carne de res salteada con cebolla, tomate y papas fritas.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg text-primary">S/ 40.00</span>
+                                    <button class="btn-primary add-to-cart" data-id="2" data-name="Lomo Saltado" data-price="40" data-img="https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                        <i class="fas fa-plus mr-2"></i>Añadir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://images.unsplash.com/photo-1633436375795-12b3b339712f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Ají de Gallina" class="product-img">
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold mb-2">Ají de Gallina</h3>
+                                <p class="text-gray-700 mb-4">Crema de ají amarillo con pollo deshilachado y papas.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg text-primary">S/ 32.00</span>
+                                    <button class="btn-primary add-to-cart" data-id="3" data-name="Ají de Gallina" data-price="32" data-img="https://images.unsplash.com/photo-1633436375795-12b3b339712f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                        <i class="fas fa-plus mr-2"></i>Añadir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="product-card">
+                            <img src="https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Pisco Sour" class="product-img">
+                            <div class="p-4">
+                                <h3 class="text-xl font-bold mb-2">Pisco Sour</h3>
+                                <p class="text-gray-700 mb-4">El cóctel bandera del Perú con limón, clara y bitters.</p>
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-lg text-primary">S/ 25.00</span>
+                                    <button class="btn-primary add-to-cart" data-id="4" data-name="Pisco Sour" data-price="25" data-img="https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                        <i class="fas fa-plus mr-2"></i>Añadir
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Menu Section -->
+        <section id="menu" class="tab-content py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 section-title">Nuestro Menú</h2>
+                
+                <!-- Categories -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div class="category-card cursor-pointer" onclick="showCategory('pescados')">
+                        <img src="https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Pescados y Mariscos" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold">Pescados y Mariscos</h3>
+                        </div>
+                    </div>
+                    <div class="category-card cursor-pointer" onclick="showCategory('frituras')">
+                        <img src="https://images.unsplash.com/photo-1626200419199-393401371bbd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Frituras" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold">Frituras</h3>
+                        </div>
+                    </div>
+                    <div class="category-card cursor-pointer" onclick="showCategory('licores')">
+                        <img src="https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Licores" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold">Licores</h3>
+                        </div>
+                    </div>
+                    <div class="category-card cursor-pointer" onclick="showCategory('cocteles')">
+                        <img src="https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Cócteles" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold">Cócteles</h3>
+                        </div>
+                    </div>
+                    <div class="category-card cursor-pointer" onclick="showCategory('regionales')">
+                        <img src="https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Platos Regionales" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold">Platos Regionales</h3>
+                        </div>
+                    </div>
+                    <div class="category-card cursor-pointer" onclick="showCategory('adicionales')">
+                        <img src="https://images.unsplash.com/photo-1598866594230-a7c12756260f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Porciones Adicionales" class="w-full h-48 object-cover">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold">Porciones Adicionales</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Category Products (Initially Hidden) -->
+                <div id="categoryProducts" class="hidden">
+                    <div class="flex items-center mb-6">
+                        <button class="btn-outline mr-4" onclick="backToCategories()">
+                            <i class="fas fa-arrow-left mr-2"></i>Volver a Categorías
+                        </button>
+                        <h3 class="text-2xl font-bold" id="categoryTitle">Categoría</h3>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="productsGrid">
+                        <!-- Products will be added here dynamically -->
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Promotions Section -->
+        <section id="promotions" class="tab-content py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 section-title">Promociones Especiales</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 1" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-3">Martes de Ceviches</h3>
+                            <p class="text-gray-700 mb-4">Todos los martes disfruta de nuestros deliciosos ceviches en promoción 2x1. Una oportunidad única para disfrutar de lo mejor de nuestra cocina marina con un acompañante.</p>
+                            <p class="text-primary font-bold mb-4">Válido solo los martes, consumo en restaurante.</p>
+                            <button class="btn-primary add-to-cart" data-id="p1" data-name="Promoción: 2x1 Ceviches" data-price="35" data-img="https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                <i class="fas fa-plus mr-2"></i>Añadir al Carrito
+                            </button>
+                        </div>
+                    </div>
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 2" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-3">Happy Hour de Pisco</h3>
+                            <p class="text-gray-700 mb-4">Disfruta de todos nuestros cócteles a base de Pisco con 30% de descuento, todos los días de 5pm a 7pm. La mejor forma de terminar tu jornada laboral.</p>
+                            <p class="text-primary font-bold mb-4">Válido de 5pm a 7pm, todos los días.</p>
+                            <button class="btn-primary add-to-cart" data-id="p2" data-name="Promoción: Happy Hour Pisco (30% dcto)" data-price="17.5" data-img="https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                <i class="fas fa-plus mr-2"></i>Añadir al Carrito
+                            </button>
+                        </div>
+                    </div>
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 3" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-3">Combo Familiar</h3>
+                            <p class="text-gray-700 mb-4">Lomo saltado para 4 personas + 4 bebidas (gaseosas o chicha morada) + 4 postres (suspiro a la limeña). Ideal para una comida familiar.</p>
+                            <p class="text-primary font-bold mb-4">Precio especial: S/ 120.00</p>
+                            <button class="btn-primary add-to-cart" data-id="p3" data-name="Promoción: Combo Familiar (4 personas)" data-price="120" data-img="https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                <i class="fas fa-plus mr-2"></i>Añadir al Carrito
+                            </button>
+                        </div>
+                    </div>
+                    <div class="promo-card">
+                        <img src="https://images.unsplash.com/photo-1633436375795-12b3b339712f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Promoción 4" class="w-full h-64 object-cover">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-3">Jueves de Ají de Gallina</h3>
+                            <p class="text-gray-700 mb-4">Los jueves, nuestro tradicional ají de gallina viene con chicha morada y postre a un precio especial.</p>
+                            <p class="text-primary font-bold mb-4">Válido solo los jueves, todo el día.</p>
+                            <button class="btn-primary add-to-cart" data-id="p4" data-name="Promoción: Combo Ají de Gallina" data-price="38" data-img="https://images.unsplash.com/photo-1633436375795-12b3b339712f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80">
+                                <i class="fas fa-plus mr-2"></i>Añadir al Carrito
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- About Section -->
+        <section id="about" class="tab-content py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 section-title">Sobre Nosotros</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div>
+                        <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Restaurante" class="rounded-lg shadow-lg mb-6">
+                        <img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" alt="Chef" class="rounded-lg shadow-lg">
+                    </div>
+                    <div>
+                        <div class="info-card mb-8">
+                            <h3 class="text-2xl font-bold mb-4">Nuestra Historia</h3>
+                            <p class="mb-4">El Gran Pajonal nació en 2005 como un pequeño emprendimiento familiar con la misión de llevar la auténtica cocina peruana a los paladares más exigentes. Fundado por la familia Rodríguez, originaria de Lima, el restaurante comenzó como un modesto local de 10 mesas.</p>
+                            <p>Con el pasar de los años, gracias a nuestras recetas tradicionales y el amor por la gastronomía peruana, hemos logrado expandirnos y convertirnos en uno de los referentes de la cocina peruana en la ciudad. Hoy contamos con un equipo de más de 30 colaboradores apasionados por brindarte la mejor experiencia culinaria.</p>
+                        </div>
+                        <div class="info-card">
+                            <h3 class="text-2xl font-bold mb-4">Nuestra Filosofía</h3>
+                            <p class="mb-4">En El Gran Pajonal creemos que la gastronomía es una expresión cultural que debe preservarse y compartirse. Nos comprometemos a:</p>
+                            <ul class="list-disc pl-5 mb-4">
+                                <li class="mb-2">Utilizar ingredientes frescos y de temporada</li>
+                                <li class="mb-2">Apoyar a productores locales</li>
+                                <li class="mb-2">Mantener vivas las tradiciones culinarias peruanas</li>
+                                <li class="mb-2">Innovar respetando las raíces de nuestra gastronomía</li>
+                                <li>Brindar un servicio cálido y acogedor</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-card mt-10">
+                    <h3 class="text-2xl font-bold mb-4">Nuestro Equipo</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Chef Principal" class="w-32 h-32 object-cover rounded-full mx-auto mb-4">
+                            <h4 class="font-bold text-lg">Carlos Rodríguez</h4>
+                            <p class="text-gray-700">Chef Principal</p>
+                        </div>
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Chef de Postres" class="w-32 h-32 object-cover rounded-full mx-auto mb-4">
+                            <h4 class="font-bold text-lg">María Sánchez</h4>
+                            <p class="text-gray-700">Chef de Postres</p>
+                        </div>
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/men/55.jpg" alt="Sommelier" class="w-32 h-32 object-cover rounded-full mx-auto mb-4">
+                            <h4 class="font-bold text-lg">Javier Mendoza</h4>
+                            <p class="text-gray-700">Sommelier</p>
+                        </div>
+                        <div class="text-center">
+                            <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Gerente" class="w-32 h-32 object-cover rounded-full mx-auto mb-4">
+                            <h4 class="font-bold text-lg">Laura Paredes</h4>
+                            <p class="text-gray-700">Gerente</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Location Section -->
+        <section id="location" class="tab-content py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 section-title">Ubícanos</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                    <div>
+                        <div class="info-card">
+                            <h3 class="text-2xl font-bold mb-4">Dirección</h3>
+                            <p class="mb-4"><i class="fas fa-map-marker-alt text-primary mr-2"></i> Av. Larco 1234, Miraflores, Lima, Perú</p>
+                            <p class="mb-4"><i class="fas fa-phone text-primary mr-2"></i> +51 1 234 5678</p>
+                            <p class="mb-4"><i class="fas fa-envelope text-primary mr-2"></i> info@elgranpajonal.com</p>
+                            
+                            <h4 class="text-xl font-bold mt-6 mb-4">Horarios de Atención</h4>
+                            <p class="mb-2"><span class="font-bold">Lunes a Jueves:</span> 12:00 pm - 10:00 pm</p>
+                            <p class="mb-2"><span class="font-bold">Viernes y Sábados:</span> 12:00 pm - 12:00 am</p>
+                            <p><span class="font-bold">Domingos:</span> 12:00 pm - 8:00 pm</p>
+                        </div>
+                        <div class="info-card mt-6">
+                            <h3 class="text-2xl font-bold mb-4">¿Cómo llegar?</h3>
+                            <p class="mb-4">Estamos ubicados a solo 3 cuadras del Parque Kennedy, en el corazón de Miraflores. Puedes llegar fácilmente usando el Metropolitano, bajando en la estación Ricardo Palma y caminando 5 minutos.</p>
+                            <p>Contamos con estacionamiento propio para clientes y también puedes encontrar estacionamientos públicos en las calles aledañas.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="bg-gray-300 rounded-lg shadow h-96 flex items-center justify-center">
+                            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3900.9590827511543!2d-77.0338169!3d-12.1195172!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x9105c8199ea33425%3A0xb8e53e5595dbc521!2sAv.%20Larco%2C%20Miraflores%2015074%2C%20Peru!5e0!3m2!1sen!2sus!4v1698554122087!5m2!1sen!2sus" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Reviews Section -->
+        <section id="reviews" class="tab-content py-16">
+            <div class="container mx-auto px-4">
+                <h2 class="text-3xl font-bold mb-8 section-title">Opiniones de Nuestros Clientes</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+                    <div class="info-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/22.jpg" alt="Cliente" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold">Julia Méndez</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"El mejor ceviche que he probado en Lima. Los sabores son auténticos y el servicio es impecable. Definitivamente volveré pronto."</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Cliente" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold">Roberto Sánchez</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"Visité El Gran Pajonal durante mi viaje a Lima y quedé maravillado con su lomo saltado. El ambiente es acogedor y el personal muy amable."</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/89.jpg" alt="Cliente" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold">Carmen Espinoza</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"Sus pisco sours son simplemente perfectos. El balance entre el pisco, el limón y la clara es ideal. El lugar tiene un ambiente muy agradable para reuniones."</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/men/76.jpg" alt="Cliente" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold">Miguel Torres</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="far fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"Excelente lugar para disfrutar de la gastronomía peruana. Las porciones son generosas y los precios son razonables. Recomiendo probar el ají de gallina."</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Cliente" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold">Ana María López</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star-half-alt"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"Me encantó la variedad de platos y la calidad de los ingredientes. La chicha morada casera es deliciosa. El personal es muy atento y hace recomendaciones acertadas."</p>
+                    </div>
+                    <div class="info-card">
+                        <div class="flex items-center mb-4">
+                            <img src="https://randomuser.me/api/portraits/men/23.jpg" alt="Cliente" class="w-12 h-12 rounded-full mr-4">
+                            <div>
+                                <h4 class="font-bold">Pedro Ramírez</h4>
+                                <div class="flex text-yellow-400">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p>"Sin duda, uno de los mejores restaurantes peruanos que he visitado. El anticucho de corazón es espectacular y la presentación de los platos es muy cuidada."</p>
+                    </div>
+                </div>
+                
+                <div class="info-card">
+                    <h3 class="text-2xl font-bold mb-4">Deja tu Opinión</h3>
+                    <p class="mb-6">Tu opinión nos ayuda a mejorar. Por favor, comparte tu experiencia en El Gran Pajonal.</p>
+                    <form id="reviewForm" class="space-y-4">
+                        <div class="form-group">
+                            <label for="reviewName" class="block mb-2 font-bold">Nombre:</label>
+                            <input type="text" id="reviewName" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label class="block mb-2 font-bold">Calificación:</label>
+                            <div class="flex text-gray-400 text-2xl rating-stars">
+                                <i class="far fa-star cursor-pointer" data-rating="1"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="2"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="3"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="4"></i>
+                                <i class="far fa-star cursor-pointer" data-rating="5"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="reviewComment" class="block mb-2 font-bold">Comentario:</label>
+                            <textarea id="reviewComment" class="form-control" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary">Enviar Comentario</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="bg-dark-color text-white py-10">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">El Gran Pajonal</h3>
+                        <p class="mb-4">Auténtica cocina peruana desde 2005.</p>
+                        <div class="flex space-x-4">
+                            <a href="#" class="text-white hover:text-primary"><i class="fab fa-facebook-f"></i></a>
+                            <a href="#" class="text-white hover:text-primary"><i class="fab fa-instagram"></i></a>
+                            <a href="#" class="text-white hover:text-primary"><i class="fab fa-twitter"></i></a>
+                            <a href="#" class="text-white hover:text-primary"><i class="fab fa-tripadvisor"></i></a>
+                        </div>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Contacto</h3>
+                        <p class="mb-2"><i class="fas fa-map-marker-alt mr-2"></i> Av. Larco 1234, Miraflores, Lima</p>
+                        <p class="mb-2"><i class="fas fa-phone mr-2"></i> +51 1 234 5678</p>
+                        <p><i class="fas fa-envelope mr-2"></i> info@elgranpajonal.com</p>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4">Horarios</h3>
+                        <p class="mb-2"><span class="font-bold">Lun - Jue:</span> 12pm - 10pm</p>
+                        <p class="mb-2"><span class="font-bold">Vie - Sáb:</span> 12pm - 12am</p>
+                        <p><span class="font-bold">Domingos:</span> 12pm - 8pm</p>
+                    </div>
+                </div>
+                <div class="border-t border-gray-700 mt-8 pt-8 text-center">
+                    <p>&copy; 2023 El Gran Pajonal. Todos los derechos reservados.</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Cart Modal -->
+    <div class="modal" id="cartModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCartModal">&times;</span>
+            <h2 class="text-2xl font-bold mb-6">Tu Carrito</h2>
+            
+            <div id="cartEmpty" class="text-center py-8">
+                <i class="fas fa-shopping-cart text-5xl text-gray-300 mb-4"></i>
+                <p class="text-xl text-gray-500">Tu carrito está vacío</p>
+                <button class="btn-outline mt-4" onclick="closeModal('cartModal')">Continuar Comprando</button>
+            </div>
+            
+            <div id="cartItems" class="hidden">
+                <div class="receipt mb-6">
+                    <div class="receipt-header">
+                        <div class="flex justify-between font-bold">
+                            <div>El Gran Pajonal</div>
+                            <div>Boleta Electrónica</div>
+                        </div>
+                        <div class="text-sm text-gray-500 mt-2">Av. Larco 1234, Miraflores, Lima</div>
+                        <div class="text-sm text-gray-500">Fecha: <span id="receiptDate"></span></div>
+                    </div>
+                    
+                    <div id="cartItemsList" class="py-2">
+                        <!-- Cart items will be added here -->
+                    </div>
+                    
+                    <div class="receipt-footer">
+                        <div class="receipt-item">
+                            <span>Subtotal:</span>
+                            <span id="cartSubtotal">S/ 0.00</span>
+                        </div>
+                        <div class="receipt-item">
+                            <span>IGV (18%):</span>
+                            <span id="cartTax">S/ 0.00</span>
+                        </div>
+                        <div class="receipt-item font-bold text-lg">
+                            <span>Total:</span>
+                            <span id="cartTotal">S/ 0.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between">
+                    <button class="btn-outline" onclick="closeModal('cartModal')">
+                        <i class="fas fa-arrow-left mr-2"></i>Seguir Comprando
+                    </button>
+                    <button class="btn-primary" id="checkoutBtn">
+                        <i class="fas fa-credit-card mr-2"></i>Proceder al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Checkout Modal -->
+    <div class="modal" id="checkoutModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeCheckoutModal">&times;</span>
+            <h2 class="text-2xl font-bold mb-6">Finalizar Compra</h2>
+            
+            <div class="mb-8">
+                <h3 class="text-xl font-bold mb-4">Información de Entrega</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label class="block mb-2">Nombre:</label>
+                        <input type="text" class="form-control" id="deliveryName">
+                    </div>
+                    <div class="form-group">
+                        <label class="block mb-2">Apellido:</label>
+                        <input type="text" class="form-control" id="deliveryLastName">
+                    </div>
+                    <div class="form-group">
+                        <label class="block mb-2">Teléfono:</label>
+                        <input type="tel" class="form-control" id="deliveryPhone">
+                    </div>
+                    <div class="form-group">
+                        <label class="block mb-2">Email:</label>
+                        <input type="email" class="form-control" id="deliveryEmail">
+                    </div>
+                </div>
+                
+                <div class="form-group mt-4">
+                    <label class="block mb-2">Dirección:</label>
+                    <input type="text" class="form-control" id="deliveryAddress">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                    <div class="form-group">
+                        <label class="block mb-2">Ciudad:</label>
+                        <input type="text" class="form-control" id="deliveryCity" value="Lima">
+                    </div>
+                    <div class="form-group">
+                        <label class="block mb-2">Distrito:</label>
+                        <input type="text" class="form-control" id="deliveryDistrict">
+                    </div>
+                    <div class="form-group">
+                        <label class="block mb-2">Referencia:</label>
+                        <input type="text" class="form-control" id="deliveryReference">
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <h3 class="text-xl font-bold mb-4">Método de Pago</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="payment-option" data-payment="card">
+                        <div class="flex items-center">
+                            <input type="radio" name="paymentMethod" id="cardPayment" class="mr-3">
+                            <label for="cardPayment" class="cursor-pointer">
+                                <div class="font-bold mb-1">Tarjeta de Crédito/Débito</div>
+                                <div class="flex space-x-2 text-lg">
+                                    <i class="fab fa-cc-visa"></i>
+                                    <i class="fab fa-cc-mastercard"></i>
+                                    <i class="fab fa-cc-amex"></i>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-payment="yape">
+                        <div class="flex items-center">
+                            <input type="radio" name="paymentMethod" id="yapePayment" class="mr-3">
+                            <label for="yapePayment" class="cursor-pointer">
+                                <div class="font-bold">Yape</div>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="payment-option" data-payment="plin">
+                        <div class="flex items-center">
+                            <input type="radio" name="paymentMethod" id="plinPayment" class="mr-3">
+                            <label for="plinPayment" class="cursor-pointer">
+                                <div class="font-bold">Plin</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Credit Card Payment Form -->
+                <div id="cardPaymentForm" class="hidden payment-form">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="form-group">
+                            <label class="block mb-2">Nombre en la tarjeta:</label>
+                            <input type="text" class="form-control" placeholder="Como aparece en la tarjeta">
+                        </div>
+                        <div class="form-group">
+                            <label class="block mb-2">Número de tarjeta:</label>
+                            <input type="text" class="form-control" placeholder="XXXX XXXX XXXX XXXX">
+                        </div>
+                        <div class="form-group">
+                            <label class="block mb-2">Fecha de expiración:</label>
+                            <input type="text" class="form-control" placeholder="MM/AA">
+                        </div>
+                        <div class="form-group">
+                            <label class="block mb-2">CVV:</label>
+                            <input type="text" class="form-control" placeholder="123">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Yape Payment -->
+                <div id="yapePaymentForm" class="hidden payment-form text-center">
+                    <p class="mb-4">Escanea el código QR con tu aplicación Yape para realizar el pago:</p>
+                    <div class="mx-auto w-48 h-48 bg-gray-200 mb-4 flex items-center justify-center">
+                        <img src="https://cdn-icons-png.freepik.com/512/9183/9183855.png" alt="Yape QR Code" class="w-full h-full object-contain">
+                    </div>
+                    <p>Monto a pagar: <span id="yapeAmount" class="font-bold"></span></p>
+                </div>
+                
+                <!-- Plin Payment -->
+                <div id="plinPaymentForm" class="hidden payment-form text-center">
+                    <p class="mb-4">Escanea el código QR con tu aplicación Plin para realizar el pago:</p>
+                    <div class="mx-auto w-48 h-48 bg-gray-200 mb-4 flex items-center justify-center">
+                        <img src="https://cdn-icons-png.freepik.com/512/9183/9183855.png" alt="Plin QR Code" class="w-full h-full object-contain">
+                    </div>
+                    <p>Monto a pagar: <span id="plinAmount" class="font-bold"></span></p>
+                </div>
+                
+                <div class="flex justify-between mt-8">
+                    <button class="btn-outline" onclick="backToCart()">
+                        <i class="fas fa-arrow-left mr-2"></i>Volver al Carrito
+                    </button>
+                    <button class="btn-primary" id="completePaymentBtn">
+                        <i class="fas fa-check mr-2"></i>Completar Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Payment Confirmation Modal -->
+    <div class="modal" id="paymentConfirmationModal">
+        <div class="modal-content text-center">
+            <span class="close-modal" id="closePaymentConfirmationModal">&times;</span>
+            <div class="text-6xl text-green-500 mb-4">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-4">¡Pago Exitoso!</h2>
+            <p class="mb-6">Tu pedido ha sido recibido y está siendo procesado.</p>
+            <p class="mb-6">Recibirás un correo electrónico con los detalles de tu pedido.</p>
+            <p class="mb-8">Número de pedido: <span id="orderNumber" class="font-bold"></span></p>
+            <button class="btn-primary" onclick="closeModal('paymentConfirmationModal'); switchSection('home');">
+                <i class="fas fa-home mr-2"></i>Volver al Inicio
+            </button>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeLoginModal">&times;</span>
+            <h2 class="text-2xl font-bold mb-6">Iniciar Sesión</h2>
+            <form id="loginForm" class="space-y-4">
+                <div class="form-group">
+                    <label for="loginEmail" class="block mb-2">Email:</label>
+                    <input type="email" id="loginEmail" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword" class="block mb-2">Contraseña:</label>
+                    <input type="password" id="loginPassword" class="form-control">
+                </div>
+                <div class="flex justify-between items-center">
+                    <button type="submit" class="btn-primary">Iniciar Sesión</button>
+                    <a href="#" class="text-primary hover:underline" id="showRegisterModal">¿No tienes cuenta? Regístrate</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeRegisterModal">&times;</span>
+            <h2 class="text-2xl font-bold mb-6">Registrarse</h2>
+            <form id="registerForm" class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="registerName" class="block mb-2">Nombre:</label>
+                        <input type="text" id="registerName" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerLastName" class="block mb-2">Apellido:</label>
+                        <input type="text" id="registerLastName" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail" class="block mb-2">Email:</label>
+                    <input type="email" id="registerEmail" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label for="registerPhone" class="block mb-2">Teléfono:</label>
+                    <input type="tel" id="registerPhone" class="form-control">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="form-group">
+                        <label for="registerPassword" class="block mb-2">Contraseña:</label>
+                        <input type="password" id="registerPassword" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPasswordConfirm" class="block mb-2">Confirmar Contraseña:</label>
+                        <input type="password" id="registerPasswordConfirm" class="form-control">
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <button type="submit" class="btn-primary">Registrarse</button>
+                    <a href="#" class="text-primary hover:underline" id="showLoginModal">¿Ya tienes cuenta? Inicia sesión</a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Menu Products Data
+        const products = {
+            pescados: [
+                { id: 101, name: "Ceviche Clásico", description: "Pescado fresco marinado en limón con ajíes peruanos, cebolla y camote.", price: 35, image: "https://images.unsplash.com/photo-1535399831218-d5bd36d1a6b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 102, name: "Tiradito de Pescado", description: "Finas láminas de pescado en salsa de ají amarillo.", price: 38, image: "https://images.unsplash.com/photo-1599421498111-ad70bebb536b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 103, name: "Arroz con Mariscos", description: "Arroz cocido con variedad de mariscos frescos y especias peruanas.", price: 42, image: "https://images.unsplash.com/photo-1603105037243-ea2f7b1a3364?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 104, name: "Jalea Mixta", description: "Variedad de pescados y mariscos fritos acompañados de yuca y salsa criolla.", price: 45, image: "https://images.unsplash.com/photo-1607301406259-dfb186e15de8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 105, name: "Sudado de Pescado", description: "Filete de pescado cocido al vapor con verduras, en caldo de pescado con chicha de jora.", price: 40, image: "https://images.unsplash.com/photo-1626411085787-5666a293add4?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 106, name: "Chupe de Camarones", description: "Sopa cremosa con camarones, papas, choclo, queso y huevo.", price: 48, image: "https://images.unsplash.com/photo-1579631542720-3a87824fff86?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" }
+            ],
+            frituras: [
+                { id: 201, name: "Chicharrón de Pescado", description: "Trozos de pescado fritos con yuca y salsa tártara.", price: 38, image: "https://images.unsplash.com/photo-1626200419199-393401371bbd?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 202, name: "Anticuchos", description: "Brochetas de corazón de res marinadas y asadas a la parrilla.", price: 30, image: "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 203, name: "Tequeños de Jamón y Queso", description: "Masa wantán rellena de jamón y queso, fritos hasta dorar.", price: 25, image: "https://images.unsplash.com/photo-1563379926898-05f4575a45d8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 204, name: "Chicharrón de Cerdo", description: "Trozos de cerdo fritos, crujientes por fuera y jugosos por dentro.", price: 35, image: "https://images.unsplash.com/photo-1588413355694-01db8e2b5fa2?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 205, name: "Yuquitas Fritas", description: "Bastones de yuca fritos acompañados con huancaína y salsa criolla.", price: 22, image: "https://images.unsplash.com/photo-1598866594230-a7c12756260f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 206, name: "Salchipapas", description: "Clásico plato peruano con papas fritas y salchichas.", price: 25, image: "https://images.unsplash.com/photo-1623598018427-36c472a2b25e?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" }
+            ],
+            licores: [
+                { id: 301, name: "Pisco Quebranta", description: "Botella de pisco puro quebranta, ideal para cócteles.", price: 85, image: "https://images.unsplash.com/photo-1470337458703-46ad1756a187?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 302, name: "Pisco Acholado", description: "Mezcla de variedades de uvas para un sabor equilibrado.", price: 90, image: "https://images.unsplash.com/photo-1611179398618-23926e41bac9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 303, name: "Pisco Italia", description: "Elaborado con uvas aromáticas Italia, ideal para sour.", price: 95, image: "https://images.unsplash.com/photo-1520457242472-019571d55cb8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 304, name: "Vino Tinto Tacama", description: "Vino peruano de cepas malbec y petit verdot.", price: 75, image: "https://images.unsplash.com/photo-1506377247377-2a5b3b417ebb?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 305, name: "Cerveza Cusqueña Dorada", description: "Six pack de cerveza premium peruana.", price: 28, image: "https://images.unsplash.com/photo-1600213903598-25be92abde40?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" }
+            ],
+            cocteles: [
+                { id: 401, name: "Pisco Sour", description: "El cóctel bandera del Perú con limón, clara y bitters.", price: 25, image: "https://images.unsplash.com/photo-1626509653291-18d9a934b9db?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 402, name: "Chilcano", description: "Pisco, ginger ale, limón y hielo. Refrescante y aromático.", price: 22, image: "https://images.unsplash.com/photo-1619158401201-e3ecdca88cd1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 403, name: "Maracuyá Sour", description: "Variante del pisco sour con pulpa de maracuyá.", price: 28, image: "https://images.unsplash.com/photo-1590701833281-e6283af0948d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 404, name: "Algarrobina", description: "Pisco, leche, jarabe de algarrobina y canela.", price: 26, image: "https://images.unsplash.com/photo-1629414701735-8101eda82538?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 405, name: "Mojito Peruano", description: "Ron, hierbabuena, limón y jarabe de goma con un toque de pisco.", price: 24, image: "https://images.unsplash.com/photo-1551538827-9c037cb4f32a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" }
+            ],
+            regionales: [
+                { id: 501, name: "Lomo Saltado", description: "Carne de res salteada con cebolla, tomate y papas fritas.", price: 40, image: "https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 502, name: "Ají de Gallina", description: "Crema de ají amarillo con pollo deshilachado y papas.", price: 32, image: "https://images.unsplash.com/photo-1633436375795-12b3b339712f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 503, name: "Causa Rellena", description: "Terrina de papa amarilla rellena de pollo o atún.", price: 28, image: "https://images.unsplash.com/photo-1599421498111-ad70bebb536b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 504, name: "Seco de Carne", description: "Estofado de res con cilantro y cerveza negra.", price: 38, image: "https://images.unsplash.com/photo-1545454675-3531b543be5d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 505, name: "Tacu Tacu", description: "Mezcla de arroz y frijoles fritos con lomo o mariscos.", price: 35, image: "https://images.unsplash.com/photo-1574484284002-952d92456975?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 506, name: "Pachamanca", description: "Carnes y tubérculos cocidos bajo tierra con piedras calientes.", price: 45, image: "https://images.unsplash.com/photo-1550547660-d9450f859349?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" }
+            ],
+            adicionales: [
+                { id: 601, name: "Arroz Blanco", description: "Porción de arroz blanco graneado.", price: 8, image: "https://images.unsplash.com/photo-1598866594230-a7c12756260f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 602, name: "Papas Fritas", description: "Porción de papas fritas crujientes.", price: 12, image: "https://images.unsplash.com/photo-1576100246753-1c1b4fa452b7?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 603, name: "Cancha Serrana", description: "Maíz tostado tradicional peruano.", price: 10, image: "https://images.unsplash.com/photo-1598866594230-a7c12756260f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 604, name: "Choclo con Queso", description: "Maíz peruano de grano grande con queso fresco.", price: 15, image: "https://images.unsplash.com/photo-1551326844-4df70f78d0e9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 605, name: "Salsa Criolla", description: "Cebolla, limón, cilantro y ají limo.", price: 8, image: "https://images.unsplash.com/photo-1598866594230-a7c12756260f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" },
+                { id: 606, name: "Salsa Huancaína", description: "Crema de ají amarillo, queso y galletas.", price: 10, image: "https://images.unsplash.com/photo-1598866594230-a7c12756260f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1950&q=80" }
+            ]
+        };
+        
+        // Application state
+        const appState = {
+            cart: [],
+            currentSection: 'home',
+            currentCategory: null,
+            isLoggedIn: false,
+            userName: 'Invitado'
+        };
+        
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const contentArea = document.getElementById('contentArea');
+        const cartCount = document.getElementById('cartCount');
+        const toggleSidebarBtn = document.getElementById('toggleSidebar');
+        
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+        });
+        
+        // App initialization
+        function initApp() {
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Initialize UI states
+            updateCartCount();
+            setCurrentDate();
+            
+            // Load cart from localStorage if exists
+            loadCart();
+        }
+        
+        // Set up event listeners
+        function setupEventListeners() {
+            // Sidebar toggle
+            toggleSidebarBtn.addEventListener('click', toggleSidebar);
+            
+            // Menu items click
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (this.id === 'loginBtn') {
+                        openModal('loginModal');
+                    } else if (this.id === 'registerBtn') {
+                        openModal('registerModal');
+                    } else {
+                        const section = this.dataset.section;
+                        if (section) {
+                            switchSection(section);
+                        }
+                    }
+                });
+            });
+            
+            // Cart icon click
+            document.getElementById('cartIcon').addEventListener('click', function() {
+                openModal('cartModal');
+                updateCartDisplay();
+            });
+            
+            // Add to cart buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('add-to-cart') || e.target.parentElement.classList.contains('add-to-cart')) {
+                    const button = e.target.classList.contains('add-to-cart') ? e.target : e.target.parentElement;
+                    addToCart({
+                        id: button.dataset.id,
+                        name: button.dataset.name,
+                        price: parseFloat(button.dataset.price),
+                        image: button.dataset.img,
+                        quantity: 1
+                    });
+                }
+            });
+            
+            // Close modal buttons
+            document.querySelectorAll('.close-modal').forEach(button => {
+                button.addEventListener('click', function() {
+                    closeModal(this.id.replace('close', '').toLowerCase());
+                });
+            });
+            
+            // Checkout button
+            document.getElementById('checkoutBtn').addEventListener('click', function() {
+                closeModal('cartModal');
+                openModal('checkoutModal');
+                updatePaymentAmounts();
+            });
+            
+            // Complete Payment button
+            document.getElementById('completePaymentBtn').addEventListener('click', function() {
+                closeModal('checkoutModal');
+                completeOrder();
+            });
+            
+            // Back to cart button
+            document.getElementById('closeCheckoutModal').addEventListener('click', function() {
+                closeModal('checkoutModal');
+            });
+            
+            // Payment method selection
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    selectPaymentMethod(this.dataset.payment);
+                });
+            });
+            
+            // Switch between login and register modals
+            document.getElementById('showRegisterModal').addEventListener('click', function(e) {
+                e.preventDefault();
+                closeModal('loginModal');
+                openModal('registerModal');
+            });
+            
+            document.getElementById('showLoginModal').addEventListener('click', function(e) {
+                e.preventDefault();
+                closeModal('registerModal');
+                openModal('loginModal');
+            });
+            
+            // Login form submission
+            document.getElementById('loginForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                simulateLogin();
+            });
+            
+            // Register form submission
+            document.getElementById('registerForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                simulateRegister();
+            });
+            
+            // Review star rating
+            document.querySelectorAll('.rating-stars i').forEach(star => {
+                star.addEventListener('click', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    setStarRating(rating);
+                });
+                
+                star.addEventListener('mouseover', function() {
+                    const rating = parseInt(this.dataset.rating);
+                    highlightStars(rating);
+                });
+                
+                star.addEventListener('mouseout', function() {
+                    resetStarsToRated();
+                });
+            });
+            
+            // Review form submission
+            document.getElementById('reviewForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                submitReview();
+            });
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            contentArea.classList.toggle('expanded');
+        }
+        
+        // Switch between sections
+        function switchSection(section) {
+            // Hide all sections
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(section).classList.add('active');
+            
+            // Update active menu item
+            document.querySelectorAll('.menu-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.section === section) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update state
+            appState.currentSection = section;
+            
+            // If on mobile, collapse sidebar after selection
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('collapsed');
+                contentArea.classList.add('expanded');
+            }
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+        
+        // Scroll to section
+        function scrollToSection(section) {
+            switchSection(section);
+        }
+        
+        // Show category products
+        function showCategory(category) {
+            appState.currentCategory = category;
+            document.getElementById('categoryTitle').textContent = getCategoryTitle(category);
+            
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+            
+            products[category].forEach(product => {
+                productsGrid.innerHTML += `
+                    <div class="product-card">
+                        <img src="${product.image}" alt="${product.name}" class="product-img">
+                        <div class="p-4">
+                            <h3 class="text-xl font-bold mb-2">${product.name}</h3>
+                            <p class="text-gray-700 mb-4">${product.description}</p>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-lg text-primary">S/ ${product.price.toFixed(2)}</span>
+                                <button class="btn-primary add-to-cart" data-id="${product.id}" data-name="${product.name}" data-price="${product.price}" data-img="${product.image}">
+                                    <i class="fas fa-plus mr-2"></i>Añadir
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            document.getElementById('categoryProducts').classList.remove('hidden');
+        }
+        
+        // Get category title
+        function getCategoryTitle(category) {
+            const titles = {
+                pescados: 'Pescados y Mariscos',
+                frituras: 'Frituras',
+                licores: 'Licores',
+                cocteles: 'Cócteles',
+                regionales: 'Platos Regionales',
+                adicionales: 'Porciones Adicionales'
+            };
+            return titles[category] || 'Categoría';
+        }
+        
+        // Back to categories
+        function backToCategories() {
+            document.getElementById('categoryProducts').classList.add('hidden');
+            appState.currentCategory = null;
+        }
+        
+        // Add to cart
+        function addToCart(item) {
+            // Check if already in cart
+            const existingItem = appState.cart.find(cartItem => cartItem.id === item.id);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                appState.cart.push(item);
+            }
+            
+            // Save cart to localStorage
+            saveCart();
+            
+            // Update UI
+            updateCartCount();
+            showAddedToCartNotification(item.name);
+        }
+        
+        // Update cart count
+        function updateCartCount() {
+            const totalItems = appState.cart.reduce((total, item) => total + item.quantity, 0);
+            cartCount.textContent = totalItems;
+            
+            if (totalItems > 0) {
+                cartCount.classList.remove('hidden');
+            } else {
+                cartCount.classList.add('hidden');
+            }
+        }
+        
+        // Show notification when item added to cart
+        function showAddedToCartNotification(itemName) {
+            // Create notification element
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas fa-check-circle mr-2"></i>
+                    <span>"${itemName}" agregado al carrito</span>
+                </div>
+            `;
+            
+            // Add to document
+            document.body.appendChild(notification);
+            
+            // Remove after 3 seconds
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                notification.style.transition = 'opacity 0.5s';
+                setTimeout(() => notification.remove(), 500);
+            }, 3000);
+        }
+        
+        // Save cart to localStorage
+        function saveCart() {
+            localStorage.setItem('pajonalCart', JSON.stringify(appState.cart));
+        }
+        
+        // Load cart from localStorage
+        function loadCart() {
+            const savedCart = localStorage.getItem('pajonalCart');
+            if (savedCart) {
+                appState.cart = JSON.parse(savedCart);
+                updateCartCount();
+            }
+        }
+        
+        // Update cart display
+        function updateCartDisplay() {
+            if (appState.cart.length === 0) {
+                document.getElementById('cartEmpty').classList.remove('hidden');
+                document.getElementById('cartItems').classList.add('hidden');
+                return;
+            }
+            
+            document.getElementById('cartEmpty').classList.add('hidden');
+            document.getElementById('cartItems').classList.remove('hidden');
+            
+            const cartItemsList = document.getElementById('cartItemsList');
+            cartItemsList.innerHTML = '';
+            
+            let subtotal = 0;
+            
+            appState.cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                subtotal += itemTotal;
+                
+                cartItemsList.innerHTML += `
+                    <div class="cart-item">
+                        <div class="flex items-center mb-2">
+                            <img src="${item.image}" alt="${item.name}" class="w-16 h-16 object-cover rounded mr-3">
+                            <div class="flex-grow">
+                                <h4 class="font-bold">${item.name}</h4>
+                                <div class="flex items-center mt-1">
+                                    <button class="text-gray-500 hover:text-primary" onclick="decreaseQuantity(${index})">
+                                        <i class="fas fa-minus-circle"></i>
+                                    </button>
+                                    <span class="mx-2">${item.quantity}</span>
+                                    <button class="text-gray-500 hover:text-primary" onclick="increaseQuantity(${index})">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                    <button class="ml-4 text-red-500 hover:text-red-700" onclick="removeFromCart(${index})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <div>S/ ${item.price.toFixed(2)} x ${item.quantity}</div>
+                                <div class="font-bold">S/ ${itemTotal.toFixed(2)}</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            const tax = subtotal * 0.18;
+            const total = subtotal + tax;
+            
+            document.getElementById('cartSubtotal').textContent = `S/ ${subtotal.toFixed(2)}`;
+            document.getElementById('cartTax').textContent = `S/ ${tax.toFixed(2)}`;
+            document.getElementById('cartTotal').textContent = `S/ ${total.toFixed(2)}`;
+        }
+        
+        // Increase item quantity
+        function increaseQuantity(index) {
+            appState.cart[index].quantity += 1;
+            saveCart();
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Decrease item quantity
+        function decreaseQuantity(index) {
+            if (appState.cart[index].quantity > 1) {
+                appState.cart[index].quantity -= 1;
+            } else {
+                removeFromCart(index);
+                return;
+            }
+            saveCart();
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Remove item from cart
+        function removeFromCart(index) {
+            appState.cart.splice(index, 1);
+            saveCart();
+            updateCartCount();
+            updateCartDisplay();
+        }
+        
+        // Open modal
+        function openModal(modalId) {
+            document.getElementById(modalId).style.display = 'block';
+        }
+        
+        // Close modal
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+        
+        // Set current date for receipt
+        function setCurrentDate() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('receiptDate').textContent = now.toLocaleDateString('es-ES', options);
+        }
+        
+        // Back to cart from checkout
+        function backToCart() {
+            closeModal('checkoutModal');
+            openModal('cartModal');
+        }
+        
+        // Update payment amounts
+        function updatePaymentAmounts() {
+            let subtotal = 0;
+            appState.cart.forEach(item => {
+                subtotal += item.price * item.quantity;
+            });
+            
+            const tax = subtotal * 0.18;
+            const total = subtotal + tax;
+            
+            document.getElementById('yapeAmount').textContent = `S/ ${total.toFixed(2)}`;
+            document.getElementById('plinAmount').textContent = `S/ ${total.toFixed(2)}`;
+        }
+        
+        // Select payment method
+        function selectPaymentMethod(method) {
+            // Hide all payment forms
+            document.querySelectorAll('.payment-form').forEach(form => {
+                form.classList.add('hidden');
+            });
+            
+            // Remove selected class from all options
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Show selected payment form and mark option as selected
+            document.getElementById(`${method}PaymentForm`).classList.remove('hidden');
+            document.querySelector(`[data-payment="${method}"]`).classList.add('selected');
+            
+            // Check radio button
+            document.getElementById(`${method}Payment`).checked = true;
+        }
+        
+        // Complete order
+        function completeOrder() {
+            // Generate random order number
+            const orderNumber = Math.floor(Math.random() * 1000000) + 100000;
+            document.getElementById('orderNumber').textContent = `#${orderNumber}`;
+            
+            // Clear cart
+            appState.cart = [];
+            saveCart();
+            updateCartCount();
+            
+            // Show confirmation
+            openModal('paymentConfirmationModal');
+        }
+        
+        // Simulate login
+        function simulateLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!email || !password) {
+                alert("Por favor complete todos los campos");
+                return;
+            }
+            
+            // Extract name from email for demo purposes
+            const name = email.split('@')[0];
+            
+            // Update state
+            appState.isLoggedIn = true;
+            appState.userName = name.charAt(0).toUpperCase() + name.slice(1);
+            
+            // Update UI
+            document.querySelector('.user-info span').textContent = appState.userName;
+            
+            // Update sidebar menu
+            document.getElementById('loginBtn').innerHTML = `
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-item-text">Cerrar Sesión</span>
+            `;
+            document.getElementById('loginBtn').id = 'logoutBtn';
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            document.getElementById('registerBtn').style.display = 'none';
+            
+            // Close modal
+            closeModal('loginModal');
+        }
+        
+        // Simulate register
+        function simulateRegister() {
+            const name = document.getElementById('registerName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const passwordConfirm = document.getElementById('registerPasswordConfirm').value;
+            
+            if (!name || !email || !password || !passwordConfirm) {
+                alert("Por favor complete todos los campos");
+                return;
+            }
+            
+            if (password !== passwordConfirm) {
+                alert("Las contraseñas no coinciden");
+                return;
+            }
+            
+            // Update state
+            appState.isLoggedIn = true;
+            appState.userName = name;
+            
+            // Update UI
+            document.querySelector('.user-info span').textContent = appState.userName;
+            
+            // Update sidebar menu
+            document.getElementById('loginBtn').innerHTML = `
+                <i class="fas fa-sign-out-alt"></i>
+                <span class="menu-item-text">Cerrar Sesión</span>
+            `;
+            document.getElementById('loginBtn').id = 'logoutBtn';
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            document.getElementById('registerBtn').style.display = 'none';
+            
+            // Close modal
+            closeModal('registerModal');
+        }
+        
+        // Logout
+        function logout() {
+            // Update state
+            appState.isLoggedIn = false;
+            appState.userName = 'Invitado';
+            
+            // Update UI
+            document.querySelector('.user-info span').textContent = appState.userName;
+            
+            // Update sidebar menu
+            document.getElementById('logoutBtn').innerHTML = `
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="menu-item-text">Iniciar Sesión</span>
+            `;
+            document.getElementById('logoutBtn').id = 'loginBtn';
+            document.getElementById('loginBtn').addEventListener('click', function() {
+                openModal('loginModal');
+            });
+            
+            document.getElementById('registerBtn').style.display = 'block';
+        }
+        
+        // Star rating functionality
+        function setStarRating(rating) {
+            document.querySelectorAll('.rating-stars i').forEach((star, index) => {
+                if (index < rating) {
+                    star.className = 'fas fa-star cursor-pointer text-yellow-400';
+                } else {
+                    star.className = 'far fa-star cursor-pointer text-gray-400';
+                }
+            });
+            
+            // Store the rating
+            document.querySelector('.rating-stars').dataset.currentRating = rating;
+        }
+        
+        function highlightStars(rating) {
+            document.querySelectorAll('.rating-stars i').forEach((star, index) => {
+                if (index < rating) {
+                    star.className = 'fas fa-star cursor-pointer text-yellow-400';
+                } else {
+                    star.className = 'far fa-star cursor-pointer text-gray-400';
+                }
+            });
+        }
+        
+        function resetStarsToRated() {
+            const currentRating = document.querySelector('.rating-stars').dataset.currentRating || 0;
+            highlightStars(currentRating);
+        }
+        
+        // Submit review
+        function submitReview() {
+            const name = document.getElementById('reviewName').value;
+            const comment = document.getElementById('reviewComment').value;
+            const rating = document.querySelector('.rating-stars').dataset.currentRating || 0;
+            
+            if (!name || !comment || rating == 0) {
+                alert("Por favor complete todos los campos y agregue una calificación");
+                return;
+            }
+            
+            // Clear form
+            document.getElementById('reviewName').value = '';
+            document.getElementById('reviewComment').value = '';
+            document.querySelectorAll('.rating-stars i').forEach(star => {
+                star.className = 'far fa-star cursor-pointer text-gray-400';
+            });
+            document.querySelector('.rating-stars').dataset.currentRating = 0;
+            
+            // Show confirmation
+            alert("¡Gracias por tu comentario! Se ha enviado correctamente.");
+        }
+    </script>
+</body>
+</html>
